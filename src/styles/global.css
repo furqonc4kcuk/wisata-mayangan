@@ -1,0 +1,208 @@
+@import 'tailwindcss';
+
+/* ==========================================================
+   WARNA WEBSITE
+   Ubah kode warna di bawah untuk mengganti tampilan seluruh
+   halaman. Blok pertama = mode terang, blok kedua = mode gelap
+   (otomatis mengikuti pengaturan perangkat pengunjung).
+   ========================================================== */
+:root {
+  --page: #f2f6f1; /* latar halaman */
+  --surface: #ffffff; /* latar kartu */
+  --ink: #10302b; /* teks utama */
+  --muted: #4d6661; /* teks pendukung */
+  --line: #d3e0d8; /* garis tipis */
+  --chip: #e4eee7; /* latar pengisi foto/tombol filter */
+  --brand: #1f6b4a; /* hijau utama */
+  --brand-ink: #ffffff; /* teks di atas hijau */
+  --water: #22788d; /* biru air, untuk label kecil */
+  --accent: #e8a33d; /* oranye tombol utama */
+  --accent-ink: #2a1b00; /* teks di atas oranye */
+  --deep: #0d3b36; /* hijau tua (hero, footer, form) */
+  --on-deep: #eaf4ee; /* teks di atas hijau tua */
+  --on-deep-muted: #a9c7bc; /* teks pendukung di atas hijau tua */
+  --card-shadow: 0 10px 30px -14px rgba(13, 59, 54, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0a1917;
+    --surface: #11282a;
+    --ink: #e3efe9;
+    --muted: #9ab4ab;
+    --line: #22403c;
+    --chip: #173330;
+    --brand: #4cb985;
+    --brand-ink: #062016;
+    --water: #5bb8cc;
+    --accent: #f0b252;
+    --accent-ink: #2a1b00;
+    --deep: #06201e;
+    --on-deep: #eaf4ee;
+    --on-deep-muted: #9fbfb3;
+    --card-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Daftarkan warna di atas sebagai kelas Tailwind: bg-page, text-ink, dst. */
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-chip: var(--chip);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-water: var(--water);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-deep: var(--deep);
+  --color-on-deep: var(--on-deep);
+  --color-on-deep-muted: var(--on-deep-muted);
+  --shadow-card: var(--card-shadow);
+
+  /* Huruf: dipasang lewat paket @fontsource di layouts/Base.astro */
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-sans: 'Figtree Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  select option {
+    color: #10302b;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  /* lebar isi halaman + jarak kiri-kanan */
+  .wrap {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 1160px;
+    padding-inline: 20px;
+  }
+
+  /* label kecil huruf monospasi */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* tombol */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+    font: 600 15px/1 var(--font-sans);
+    padding: 13px 20px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    transition:
+      transform 0.15s,
+      filter 0.15s;
+  }
+  .btn:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+  .btn-brand {
+    background: var(--brand);
+    color: var(--brand-ink);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: inherit;
+    border: 1.5px solid currentColor;
+  }
+  .btn-sm {
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  .btn[aria-disabled='true'] {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* pembungkus foto/ilustrasi: isi otomatis memenuhi kotak */
+  .bingkai > svg,
+  .bingkai > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .bingkai > img {
+    object-fit: cover;
+  }
+  .zoom > * {
+    transition: transform 0.5s;
+  }
+  .tile:hover .zoom > * {
+    transform: scale(1.05);
+  }
+
+  /* kolom isian di dalam kotak hijau tua */
+  .isian {
+    width: 100%;
+    min-width: 0;
+    font: 16px var(--font-sans);
+    padding: 12px 13px;
+    border-radius: 10px;
+    border: 1.5px solid rgb(255 255 255 / 0.18);
+    background: rgb(255 255 255 / 0.07);
+    color: var(--on-deep);
+  }
+  .isian::placeholder {
+    color: rgb(234 244 238 / 0.45);
+  }
+  .isian:focus-visible {
+    outline-color: var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}

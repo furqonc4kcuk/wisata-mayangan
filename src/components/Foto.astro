@@ -1,0 +1,45 @@
+---
+/**
+ * Menampilkan foto asli jika ada, dan ilustrasi cadangan jika belum ada.
+ *
+ * Foto dicari di:  src/assets/foto/<jenis>/<id>.jpg  (juga .jpeg .png .webp .avif)
+ * Contoh: src/assets/foto/destinasi/tracking.jpg
+ * Astro otomatis mengecilkan dan mengonversinya ke format ringan.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { ilustrasiAdegan, ilustrasiProduk } from '../lib/ilustrasi';
+import type { Adegan, Bentuk } from '../lib/ilustrasi';
+
+interface Props {
+  jenis: 'destinasi' | 'produk';
+  id: string;
+  alt: string;
+  adegan?: Adegan;
+  bentuk?: Bentuk;
+  warna?: string;
+  sizes?: string;
+  eager?: boolean;
+}
+
+const { jenis, id, alt, adegan = 'umum', bentuk = 'toples', warna = '#3E8C5A', sizes = '(min-width: 1024px) 280px, 90vw', eager = false } = Astro.props;
+
+const semuaFoto = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/foto/**/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG,WEBP}',
+  { eager: true },
+);
+
+const awalan = `/src/assets/foto/${jenis}/${id}.`;
+const kunci = Object.keys(semuaFoto).find((k) => k.startsWith(awalan));
+const foto = kunci ? semuaFoto[kunci].default : undefined;
+
+const svg = jenis === 'destinasi' ? ilustrasiAdegan(adegan, `${jenis}-${id}`, alt) : ilustrasiProduk(bentuk, warna, alt);
+---
+
+{
+  foto ? (
+    <Image src={foto} alt={alt} widths={[400, 800, 1200]} sizes={sizes} loading={eager ? 'eager' : 'lazy'} />
+  ) : (
+    <Fragment set:html={svg} />
+  )
+}

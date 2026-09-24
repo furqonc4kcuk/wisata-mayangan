@@ -1,0 +1,167 @@
+---
+import { paket } from '../data/paket';
+import { situs } from '../config/site';
+import { rupiah, jsonAman } from '../lib/format';
+
+// Paket yang punya `label` menjadi pilihan awal; jika tidak ada, paket pertama.
+const awal = (paket.find((p) => p.label) ?? paket[0]).id;
+
+const dataPesan = {
+  wa: situs.whatsapp,
+  paket: paket.map((p) => ({ id: p.id, nama: p.nama, harga: p.harga, min: p.minPeserta })),
+};
+
+const langkah = [
+  'Pilih paket, tanggal, dan jumlah peserta',
+  'Kirim lewat WhatsApp, pengelola membalas dengan konfirmasi',
+  'Datang ke Mayangan sesuai jadwal, pemandu sudah menunggu',
+  'Jadwal susur perahu mengikuti pasang air laut, pengelola akan menyesuaikan jamnya',
+];
+---
+
+<div id="pesan" class="mt-8.5 grid gap-7.5 rounded-[22px] bg-deep p-5.5 text-on-deep md:grid-cols-[1fr_1.1fr] md:p-7">
+  <div>
+    <h3 class="text-3xl">Pesan sekarang</h3>
+    <p class="mt-2.5 text-[15px] text-on-deep-muted">
+      Isi data singkat di samping. Pesan yang sudah tersusun akan terbuka di WhatsApp untuk dikonfirmasi pengelola.
+    </p>
+    <ul class="m-0 mt-4.5 grid list-none gap-2.5 p-0 text-[15px] text-on-deep-muted">
+      {
+        langkah.map((l) => (
+          <li class="grid grid-cols-[22px_1fr] gap-2.5">
+            <svg class="mt-0.5 size-5 text-accent" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 10.5l4 4 8-9" />
+            </svg>
+            {l}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <form id="form-pesan" novalidate class="grid gap-3.5 sm:grid-cols-2">
+    <div class="grid min-w-0 gap-1.5 sm:col-span-2">
+      <label for="f-paket" class="text-[13.5px] font-semibold text-on-deep-muted">Paket</label>
+      <select id="f-paket" class="isian">
+        {paket.map((p) => <option value={p.id} selected={p.id === awal}>{p.nama} · {rupiah(p.harga)}/orang (min. {p.minPeserta})</option>)}
+      </select>
+    </div>
+    <div class="grid min-w-0 gap-1.5">
+      <label for="f-tanggal" class="text-[13.5px] font-semibold text-on-deep-muted">Tanggal kunjungan</label>
+      <input id="f-tanggal" type="date" class="isian" />
+    </div>
+    <div class="grid min-w-0 gap-1.5">
+      <label for="f-jumlah" class="text-[13.5px] font-semibold text-on-deep-muted">Jumlah peserta</label>
+      <input id="f-jumlah" type="number" inputmode="numeric" min="1" value="10" class="isian" />
+    </div>
+    <div class="grid min-w-0 gap-1.5">
+      <label for="f-nama" class="text-[13.5px] font-semibold text-on-deep-muted">Nama pemesan</label>
+      <input id="f-nama" type="text" placeholder="Nama Anda atau instansi" autocomplete="name" class="isian" />
+    </div>
+    <div class="grid min-w-0 gap-1.5">
+      <label for="f-asal" class="text-[13.5px] font-semibold text-on-deep-muted">Asal (opsional)</label>
+      <input id="f-asal" type="text" placeholder="Sekolah, kampus, atau kota" class="isian" />
+    </div>
+    <div class="grid min-w-0 gap-1.5 sm:col-span-2">
+      <label for="f-catatan" class="text-[13.5px] font-semibold text-on-deep-muted">Catatan (opsional)</label>
+      <textarea id="f-catatan" rows="2" placeholder="Contoh: ada peserta berkebutuhan khusus, ingin tambah oleh-oleh" class="isian"></textarea>
+    </div>
+
+    <div class="flex flex-wrap items-baseline justify-between gap-3 border-t border-dashed border-white/25 pt-3.5 sm:col-span-2">
+      <span class="label-mono text-on-deep-muted">Perkiraan biaya</span>
+      <b id="f-total" class="font-display text-[28px] leading-none font-extrabold tabular-nums">Rp0</b>
+    </div>
+    <div id="f-galat" role="alert" class="min-h-[1.2em] text-sm text-[#FFC9A8] sm:col-span-2"></div>
+    <div class="sm:col-span-2">
+      <a id="f-kirim" class="btn w-full" href="#pesan" target="_blank" rel="noopener">Kirim pesanan lewat WhatsApp</a>
+    </div>
+  </form>
+
+  <script id="data-pesan" type="application/json" is:inline set:html={jsonAman(dataPesan)} />
+</div>
+
+<script>
+  import { rupiah, linkWA } from '../lib/format';
+
+  type Data = { wa: string; paket: { id: string; nama: string; harga: number; min: number }[] };
+  const data: Data = JSON.parse(document.getElementById('data-pesan')!.textContent!);
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const pilih = $<HTMLSelectElement>('f-paket');
+  const tanggal = $<HTMLInputElement>('f-tanggal');
+  const jumlah = $<HTMLInputElement>('f-jumlah');
+  const nama = $<HTMLInputElement>('f-nama');
+  const asal = $<HTMLInputElement>('f-asal');
+  const catatan = $<HTMLTextAreaElement>('f-catatan');
+  const total = $('f-total');
+  const galat = $('f-galat');
+  const kirim = $<HTMLAnchorElement>('f-kirim');
+
+  const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const besok3 = new Date();
+  besok3.setDate(besok3.getDate() + 3);
+  tanggal.min = iso(new Date());
+  tanggal.value = iso(besok3);
+
+  const paketDipilih = () => data.paket.find((p) => p.id === pilih.value)!;
+
+  function perbarui() {
+    const p = paketDipilih();
+    const n = parseInt(jumlah.value, 10) || 0;
+    total.textContent = rupiah(p.harga * Math.max(n, 0));
+
+    let pesanGalat = '';
+    if (n < p.min) pesanGalat = `Paket ini minimal ${p.min} peserta. Untuk jumlah lebih sedikit, pilih paket lain.`;
+    else if (!tanggal.value) pesanGalat = 'Pilih tanggal kunjungan.';
+    else if (!nama.value.trim()) pesanGalat = 'Isi nama pemesan agar pengelola tahu siapa yang dihubungi.';
+    galat.textContent = pesanGalat;
+
+    if (pesanGalat) {
+      kirim.setAttribute('aria-disabled', 'true');
+      kirim.href = '#pesan';
+      return;
+    }
+    kirim.setAttribute('aria-disabled', 'false');
+    const tgl = new Date(`${tanggal.value}T00:00:00`).toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    const teks = [
+      'Halo, saya ingin memesan wisata edukasi mangrove Mayangan.',
+      '',
+      `Paket: ${p.nama}`,
+      `Tanggal: ${tgl}`,
+      `Jumlah peserta: ${n} orang`,
+      `Perkiraan biaya: ${rupiah(p.harga * n)}`,
+      `Nama pemesan: ${nama.value.trim()}`,
+      asal.value.trim() ? `Asal: ${asal.value.trim()}` : '',
+      catatan.value.trim() ? `Catatan: ${catatan.value.trim()}` : '',
+      '',
+      'Mohon konfirmasi ketersediaan jadwal. Terima kasih.',
+    ]
+      .filter((baris, i, semua) => baris !== '' || (i > 0 && semua[i - 1] !== ''))
+      .join('\n');
+    kirim.href = linkWA(data.wa, teks);
+  }
+
+  const form = $<HTMLFormElement>('form-pesan');
+  form.addEventListener('input', perbarui);
+  form.addEventListener('change', perbarui);
+  form.addEventListener('submit', (e) => e.preventDefault());
+
+  // Tombol "Pesan paket ini" di kartu paket
+  document.querySelectorAll<HTMLButtonElement>('[data-pilih]').forEach((b) => {
+    b.addEventListener('click', () => {
+      pilih.value = b.dataset.pilih!;
+      const p = paketDipilih();
+      if ((parseInt(jumlah.value, 10) || 0) < p.min) jumlah.value = String(p.min);
+      perbarui();
+      $('pesan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => nama.focus({ preventScroll: true }), 450);
+    });
+  });
+
+  perbarui();
+</script>

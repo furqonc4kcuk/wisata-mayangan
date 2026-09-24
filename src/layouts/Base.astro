@@ -1,0 +1,41 @@
+---
+import '../styles/global.css';
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/figtree';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import { situs } from '../config/site';
+
+interface Props {
+  judul?: string;
+  deskripsi?: string;
+}
+
+const {
+  judul = `${situs.nama} | Wisata Edukasi Mangrove di Subang`,
+  deskripsi = situs.deskripsi,
+} = Astro.props;
+
+const kanonik = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{judul}</title>
+    <meta name="description" content={deskripsi} />
+    <meta name="theme-color" content="#0D3B36" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {kanonik && <link rel="canonical" href={kanonik} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={judul} />
+    <meta property="og:description" content={deskripsi} />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

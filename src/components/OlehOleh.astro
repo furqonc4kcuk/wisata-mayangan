@@ -1,0 +1,118 @@
+---
+import { produk } from '../data/produk';
+import { situs } from '../config/site';
+import { rupiah, jsonAman } from '../lib/format';
+import Foto from './Foto.astro';
+import JudulBagian from './JudulBagian.astro';
+
+// Data yang dibutuhkan skrip keranjang di bawah
+const dataKeranjang = {
+  wa: situs.whatsapp,
+  produk: produk.map((p) => ({ id: p.id, nama: p.nama, harga: p.harga })),
+};
+---
+
+<section id="oleh-oleh" class="pt-14 pb-2 md:pt-19">
+  <JudulBagian label="Kluster 2 · Oleh-oleh khas" judul="Bawa pulang rasa Mayangan">
+    Olahan warga sekitar hutan mangrove dan pesisir. Atur jumlahnya, lalu kirim pesanan lewat WhatsApp.
+  </JudulBagian>
+
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
+    {
+      produk.map((p) => (
+        <article class="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
+          <div class="bingkai aspect-16/10 overflow-hidden bg-chip">
+            <Foto jenis="produk" id={p.id} alt={p.nama} bentuk={p.bentuk} warna={p.warna} sizes="(min-width: 1024px) 380px, 90vw" />
+          </div>
+          <div class="flex flex-1 flex-col gap-1.5 px-4 pt-3.5 pb-4">
+            <h3 class="text-[19px]">{p.nama}</h3>
+            <p class="text-sm text-muted">{p.deskripsi}</p>
+            <div class="mt-auto pt-2 font-display text-lg leading-none font-bold">
+              {rupiah(p.harga)} <small class="font-sans text-[13px] font-normal text-muted">/ {p.satuan}</small>
+            </div>
+            <div class="mt-2.5 flex items-center gap-2.5">
+              <button
+                type="button"
+                data-aksi="kurang"
+                data-id={p.id}
+                aria-label={`Kurangi ${p.nama}`}
+                class="size-9.5 cursor-pointer rounded-[10px] border-[1.5px] border-line bg-page text-xl leading-none font-semibold text-ink"
+              >
+                &minus;
+              </button>
+              <output id={`qty-${p.id}`} aria-live="polite" class="min-w-6.5 text-center font-semibold tabular-nums">0</output>
+              <button
+                type="button"
+                data-aksi="tambah"
+                data-id={p.id}
+                aria-label={`Tambah ${p.nama}`}
+                class="size-9.5 cursor-pointer rounded-[10px] border-[1.5px] border-line bg-page text-xl leading-none font-semibold text-ink"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <!-- Bilah pesanan: menempel di bawah layar selama bagian ini terlihat -->
+  <div class="sticky bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-5 mt-5.5 flex flex-wrap items-center justify-between gap-3.5 rounded-2xl bg-deep px-4 py-3.5 text-on-deep shadow-2xl">
+    <div id="ringkasan" class="text-[14.5px] text-on-deep-muted">Belum ada produk dipilih.</div>
+    <a id="kirim-oleh" class="btn" aria-disabled="true" href="#oleh-oleh" target="_blank" rel="noopener">Pesan lewat WhatsApp</a>
+  </div>
+
+  {situs.catatanContoh.produk && <p class="mt-4 text-[13px] text-muted">{situs.catatanContoh.produk}</p>}
+
+  <script id="data-keranjang" type="application/json" is:inline set:html={jsonAman(dataKeranjang)} />
+</section>
+
+<script>
+  import { rupiah, linkWA } from '../lib/format';
+
+  type Data = { wa: string; produk: { id: string; nama: string; harga: number }[] };
+  const data: Data = JSON.parse(document.getElementById('data-keranjang')!.textContent!);
+  const jumlah: Record<string, number> = {};
+
+  const ringkasan = document.getElementById('ringkasan')!;
+  const tombol = document.getElementById('kirim-oleh') as HTMLAnchorElement;
+
+  function perbarui() {
+    let n = 0;
+    let total = 0;
+    const baris: string[] = [];
+    for (const p of data.produk) {
+      const q = jumlah[p.id] ?? 0;
+      const out = document.getElementById(`qty-${p.id}`);
+      if (out) out.textContent = String(q);
+      if (q) {
+        n += q;
+        total += q * p.harga;
+        baris.push(`- ${p.nama} x${q} (${rupiah(q * p.harga)})`);
+      }
+    }
+    if (!n) {
+      ringkasan.textContent = 'Belum ada produk dipilih.';
+      tombol.setAttribute('aria-disabled', 'true');
+      tombol.href = '#oleh-oleh';
+      return;
+    }
+    ringkasan.innerHTML = `<b class="text-on-deep">${n} item</b> · total <b class="text-on-deep tabular-nums">${rupiah(total)}</b> (belum termasuk ongkir)`;
+    tombol.setAttribute('aria-disabled', 'false');
+    tombol.href = linkWA(
+      data.wa,
+      `Halo, saya ingin memesan oleh-oleh Mangrove Mayangan:\n${baris.join('\n')}\nTotal: ${rupiah(total)}\n\nMohon info ketersediaan dan cara pengambilan/pengiriman. Terima kasih.`,
+    );
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-aksi]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id!;
+      const baru = (jumlah[id] ?? 0) + (b.dataset.aksi === 'tambah' ? 1 : -1);
+      jumlah[id] = Math.max(0, Math.min(99, baru));
+      perbarui();
+    });
+  });
+  perbarui();
+</script>

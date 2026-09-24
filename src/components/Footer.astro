@@ -1,0 +1,15 @@
+---
+import { situs } from '../config/site';
+---
+
+<footer class="mt-21 bg-deep py-10 text-on-deep-muted">
+  <div class="wrap flex flex-wrap items-start justify-between gap-6">
+    <div>
+      <b class="font-display text-xl text-on-deep">{situs.nama}</b>
+      <p class="mt-2 max-w-[52ch] text-[14.5px]">
+        Wisata edukasi mangrove di {situs.lokasi}. Kunjungan Anda ikut mendukung penanaman dan perawatan hutan mangrove setempat.
+      </p>
+    </div>
+    <div class="label-mono">{situs.pengelola}<br />{situs.jamBuka}</div>
+  </div>
+</footer>

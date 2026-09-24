@@ -1,0 +1,54 @@
+---
+import { situs } from '../config/site';
+import { destinasi } from '../data/destinasi';
+import { produk } from '../data/produk';
+import { paket } from '../data/paket';
+import { ilustrasiHero } from '../lib/ilustrasi';
+
+// Angka ringkasan dihitung otomatis dari jumlah data.
+const fakta = [
+  { angka: destinasi.length, teks: 'titik wisata & edukasi' },
+  { angka: produk.length, teks: 'oleh-oleh khas' },
+  { angka: paket.length, teks: 'paket siap pesan' },
+];
+---
+
+<section class="overflow-hidden bg-deep text-on-deep">
+  <div class="wrap grid items-center gap-9 pt-10 md:grid-cols-[1.05fr_1fr] md:pt-14">
+    <div>
+      <div class="label-mono mb-4 flex items-center gap-2.5 text-on-deep-muted">
+        <i class="block h-0.5 w-7 bg-accent"></i>
+        {situs.lokasi}
+      </div>
+
+      <!-- Judul utama: kata di dalam <em> berwarna oranye -->
+      <h1 class="text-[clamp(2.4rem,6vw,4.25rem)] font-extrabold">
+        Belajar langsung di antara <em class="text-accent not-italic">akar-akar</em> pesisir.
+      </h1>
+
+      <p class="mt-4.5 max-w-[52ch] text-[17.5px] text-on-deep-muted">
+        Susuri jembatan kayu di hutan mangrove, tanam bibitnya sendiri, lalu bawa pulang rasa pesisir Mayangan. Semua paket bisa dipesan dari rumah, tinggal datang dan mulai belajar.
+      </p>
+
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a class="btn" href="#paket">Lihat paket wisata</a>
+        <a class="btn btn-ghost text-on-deep" href="#destinasi">Jelajahi destinasi</a>
+      </div>
+
+      <dl class="mt-8 flex flex-wrap gap-x-6.5 gap-y-3 pb-10">
+        {
+          fakta.map((f) => (
+            <div class="min-w-0">
+              <dt class="font-display text-[26px] leading-none font-bold text-on-deep">{f.angka}</dt>
+              <dd class="m-0 text-[13px] text-on-deep-muted">{f.teks}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <div class="-mb-0.5 self-end max-md:order-2" aria-hidden="true">
+      <div class="[&>svg]:block [&>svg]:h-auto [&>svg]:w-full" set:html={ilustrasiHero()} />
+    </div>
+  </div>
+</section>

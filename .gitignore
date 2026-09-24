@@ -1,0 +1,20 @@
+# hasil build dan cache
+dist/
+.astro/
+
+# dependensi
+node_modules/
+
+# log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# variabel lingkungan
+.env
+.env.*
+!.env.example
+
+# sistem operasi / editor
+.DS_Store
+Thumbs.db

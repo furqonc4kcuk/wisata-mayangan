@@ -1,0 +1,49 @@
+---
+import { paket } from '../data/paket';
+import { situs } from '../config/site';
+import { rupiah } from '../lib/format';
+import JudulBagian from './JudulBagian.astro';
+import Pesan from './Pesan.astro';
+---
+
+<section id="paket" class="pt-14 pb-2 md:pt-19">
+  <JudulBagian label="Kluster 3 · Paket wisata edukasi" judul="Pilih paket, datang, belajar">
+    Setiap paket sudah termasuk pemandu, perlengkapan, dan konsumsi. Tidak perlu menyusun jadwal sendiri.
+  </JudulBagian>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] items-stretch gap-4.5">
+    {
+      paket.map((p) => (
+        <article class:list={['relative flex flex-col gap-3.5 rounded-[18px] border-[1.5px] bg-surface p-5.5', p.label ? 'border-brand shadow-card' : 'border-line']}>
+          {p.label && <span class="label-mono absolute -top-3 left-5 rounded-lg bg-brand px-2.5 py-1.25 text-brand-ink">{p.label}</span>}
+          <h3 class="text-2xl">{p.nama}</h3>
+          <p class="text-[14.5px] text-muted">{p.untuk}</p>
+          <div class="font-display text-[32px] leading-none font-extrabold">
+            {rupiah(p.harga)} <small class="font-sans text-sm font-normal text-muted">/ orang</small>
+          </div>
+          <div class="label-mono flex flex-wrap gap-2">
+            <span class="rounded-lg bg-chip px-2.25 py-1.25">Durasi {p.durasi}</span>
+            <span class="rounded-lg bg-chip px-2.25 py-1.25">Min. {p.minPeserta} orang</span>
+          </div>
+          <ul class="m-0 grid list-none gap-2.25 p-0 text-[15px]">
+            {p.termasuk.map((t) => (
+              <li class="grid grid-cols-[20px_1fr] gap-2">
+                <svg class="mt-1 size-4.5 text-brand" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 10.5l4 4 8-9" />
+                </svg>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+          <button type="button" data-pilih={p.id} class:list={['btn mt-auto', !p.label && 'btn-brand']}>
+            Pesan paket ini
+          </button>
+        </article>
+      ))
+    }
+  </div>
+
+  <Pesan />
+
+  {situs.catatanContoh.paket && <p class="mt-4 text-[13px] text-muted">{situs.catatanContoh.paket}</p>}
+</section>

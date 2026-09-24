@@ -1,0 +1,34 @@
+---
+import { situs } from '../config/site';
+
+// Menu navigasi: ubah tulisan atau tujuan (#id bagian) di sini.
+const menu = [
+  { teks: 'Destinasi', href: '#destinasi' },
+  { teks: 'Oleh-oleh', href: '#oleh-oleh' },
+  { teks: 'Paket wisata', href: '#paket' },
+];
+---
+
+<header class="sticky top-0 z-20 border-b border-line bg-page/90 backdrop-blur">
+  <div class="wrap flex min-h-15 flex-wrap items-center gap-x-4 gap-y-1 py-1.5">
+    <a href="#atas" class="mr-auto flex items-center gap-2 font-display text-[19px] leading-none font-extrabold" aria-label={`${situs.nama}, ke atas`}>
+      <svg class="size-6.5 flex-none" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="11" r="8" fill="var(--brand)"></circle>
+        <path d="M16 14v6M16 20c-2 2-4 4-6 8M16 20c2 2 4 4 6 8M16 20c-.5 3-.5 5 0 8" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+      {situs.nama}
+    </a>
+
+    <nav class="order-3 flex w-full gap-1 overflow-x-auto md:order-none md:w-auto" aria-label="Menu utama">
+      {
+        menu.map((m) => (
+          <a href={m.href} class="rounded-full px-3 py-2 text-[14.5px] font-semibold whitespace-nowrap text-muted hover:bg-chip hover:text-ink">
+            {m.teks}
+          </a>
+        ))
+      }
+    </nav>
+
+    <a class="btn btn-sm" href="#pesan">Pesan paket</a>
+  </div>
+</header>

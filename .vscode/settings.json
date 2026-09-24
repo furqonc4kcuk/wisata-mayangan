@@ -1,0 +1,7 @@
+{
+  "editor.quickSuggestions": { "strings": "on" },
+  "css.lint.unknownAtRules": "ignore",
+  "files.associations": { "*.css": "tailwindcss" },
+  "[astro]": { "editor.defaultFormatter": "astro-build.astro-vscode" },
+  "emmet.includeLanguages": { "astro": "html" }
+}
