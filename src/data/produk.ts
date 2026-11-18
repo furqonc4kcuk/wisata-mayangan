@@ -26,7 +26,7 @@ export const produk: Produk[] = [
     id: 'dodol',
     nama: 'Dodol Mangrove',
     deskripsi: 'Dodol dari Buah Mangrove Alami dan Manis',
-    harga: 28000,
+    harga: 18000,
     satuan: 'Mini Pack 200 gram',
     bentuk: 'botol',
     warna: '#B04A5A',
